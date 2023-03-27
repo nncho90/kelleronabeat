@@ -1,100 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Tim Keller on a Beat</title>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-</head>
-<body>
-	<div>
-		<h1>Tim Keller on a Beat</h1>
-		<button onclick="changeVideos()">Switch Videos</button>
-		<br><br>
-		<iframe id="sermon" width="560" height="315" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-		<br><br>
-		<iframe id="music" width="560" height="315" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-	</div>
+function fetchVideo() {
+  const query = "tim keller sermon";
+  const apiKey = "YOUR_API_KEY";
+  const videoEmbeddable = true;
+  const maxResults = 50;
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${maxResults}&q=${query}&key=${apiKey}&type=video&videoEmbeddable=${videoEmbeddable}`;
 
-	<script>
-		var videoIDs = [
-			"XtXQF1K3v7Q", // Tim Keller video ID
-			"hHW1oY26kxQ" // Lofi music video ID
-		];
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const randomIndex = Math.floor(Math.random() * data.items.length);
+      const videoId = data.items[randomIndex].id.videoId;
+      const videoTitle = data.items[randomIndex].snippet.title;
+      const videoDescription = data.items[randomIndex].snippet.description;
+      const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1`;
 
-		var playerVars = {
-			"autoplay": 1,
-			"controls": 0,
-			"showinfo": 0,
-			"rel": 0,
-			"fs": 0,
-			"modestbranding": 1,
-			"start": 1
-		};
+      const sermonVideo = document.getElementById("sermon-video");
+      const sermonTitle = document.getElementById("sermon-title");
+      const sermonDescription = document.getElementById("sermon-description");
+      const beatVideo = document.getElementById("beat-video");
 
-		var sermonPlayer, musicPlayer;
+      if (data.items[randomIndex].id.videoId) {
+        sermonVideo.setAttribute("src", videoUrl);
+        sermonTitle.textContent = videoTitle;
+        sermonDescription.textContent = videoDescription;
+      } else {
+        fetchVideo();
+      }
 
-		function onYouTubeIframeAPIReady() {
-			sermonPlayer = new YT.Player('sermon', {
-				height: '315',
-				width: '560',
-				videoId: videoIDs[0],
-				playerVars: playerVars,
-				events: {
-					'onReady': onSermonPlayerReady
-				}
-			});
+      const beatQuery = "lofi beats";
+      const beatUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${maxResults}&q=${beatQuery}&key=${apiKey}&type=video&videoEmbeddable=${videoEmbeddable}`;
 
-			musicPlayer = new YT.Player('music', {
-				height: '315',
-				width: '560',
-				videoId: videoIDs[1],
-				playerVars: playerVars,
-				events: {
-					'onReady': onMusicPlayerReady
-				}
-			});
-		}
+      fetch(beatUrl)
+        .then(response => response.json())
+        .then(data => {
+          const randomIndex = Math.floor(Math.random() * data.items.length);
+          const videoId = data.items[randomIndex].id.videoId;
+          const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&showinfo=0&rel=0&modestbranding=1&volume=0.05`;
 
-		function onSermonPlayerReady(event) {
-			event.target.setVolume(75);
-		}
-
-		function onMusicPlayerReady(event) {
-			event.target.setVolume(5);
-		}
-
-		function changeVideos() {
-			var sermonVideoID, musicVideoID;
-
-			do {
-				sermonVideoID = videoIDs[0];
-				musicVideoID = videoIDs[1];
-				randomizeVideos();
-			} while (!isValidVideo(sermonVideoID) || !isValidVideo(musicVideoID));
-
-			sermonPlayer.loadVideoById(sermonVideoID);
-			musicPlayer.loadVideoById(musicVideoID);
-		}
-
-		function randomizeVideos() {
-			videoIDs[0] = getRandomVideoID();
-			videoIDs[1] = getRandomVideoID();
-		}
-
-		function getRandomVideoID() {
-			return videoIDs[Math.floor(Math.random() * videoIDs.length)];
-		}
-
-		function isValidVideo(videoID) {
-			var isValid = true;
-
-			$.ajax({
-				url: "https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=" + videoID + "&format=json",
-				type: "GET",
-				async: false,
-				success: function() {},
-				error: function() {
-					isValid = false;
-				}
-			});
-
-			return isValid;
+          if (data.items[randomIndex].id.videoId) {
+            beatVideo.setAttribute("src", videoUrl);
+          } else {
+            fetchVideo();
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    })
+    .catch(error => {
+      console.error(error);
+    });
+}
