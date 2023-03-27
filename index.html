@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Tim Keller on a Beat</title>
+  </head>
+  <body>
+    <div id="player1"></div>
+    <div id="player2"></div>
+    <button id="change-videos">Listen to Tim Keller on a Beat</button>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+      // Define an array to store embeddable videos
+      var videos = [];
+
+      // Call the YouTube Data API to search for videos
+      function searchVideos() {
+        var apiKey = 'YOUR_YOUTUBE_API_KEY';
+        var query = 'Tim Keller';
+        var maxResults = 50;
+
+        // Construct the API request URL
+        var apiUrl = 'https://www.googleapis.com/youtube/v3/search';
+        apiUrl += '?part=snippet&type=video&q=' + encodeURIComponent(query);
+        apiUrl += '&maxResults=' + encodeURIComponent(maxResults);
+        apiUrl += '&key=' + encodeURIComponent(apiKey);
+
+        // Call the API using the fetch function
+        fetch(apiUrl)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(json) {
+            // Iterate through the list of videos
+            for (var i = 0; i < json.items.length; i++) {
+              var video = json.items[i];
+
+              // Check if the video is embeddable
+              if (video.hasOwnProperty('status') && video.status.hasOwnProperty('embeddable') && video.status.embeddable) {
+                // Add the video to the array of embeddable videos
+                videos.push(video);
+              }
+            }
+
+            // Embed the initial set of videos
+            changeVideos();
+          })
+          .catch(function(error) {
+            console.error('Error fetching videos:', error);
+          });
+      }
+
+      // Embed two random videos on the page
+      function changeVideos() {
+        // Select two random videos from the array of embeddable videos
+        var video1 = videos[Math.floor(Math.random() * videos.length)];
+        var video2 = videos[Math.floor(Math.random() * videos.length)];
+
+        // Create the player objects for the two videos
+        var player1 = new YT.Player('player1', {
+          height: '360',
+          width: '640',
+          videoId: video1.id.videoId,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            disablekb: 1,
+            iv_load_policy: 3,
+            modestbranding: 1,
+            showinfo:
