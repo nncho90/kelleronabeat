@@ -2,70 +2,40 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Tim Keller on a Beat</title>
+    <title>Listen to Tim Keller on a Beat</title>
   </head>
   <body>
-    <div id="player1"></div>
-    <div id="player2"></div>
-    <button id="change-videos">Listen to Tim Keller on a Beat</button>
-
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <div>
+      <h1>Listen to Tim Keller on a Beat</h1>
+      <button onclick="changeVideos()">Change Videos</button>
+    </div>
+    <div>
+      <iframe id="sermonVideo" width="560" height="315" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    <div>
+      <iframe id="musicVideo" width="560" height="315" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+    
     <script>
-      // Define an array to store embeddable videos
-      var videos = [];
-
-      // Call the YouTube Data API to search for videos
-      function searchVideos() {
-        var apiKey = 'YOUR_YOUTUBE_API_KEY';
-        var query = 'Tim Keller';
-        var maxResults = 50;
-
-        // Construct the API request URL
-        var apiUrl = 'https://www.googleapis.com/youtube/v3/search';
-        apiUrl += '?part=snippet&type=video&q=' + encodeURIComponent(query);
-        apiUrl += '&maxResults=' + encodeURIComponent(maxResults);
-        apiUrl += '&key=' + encodeURIComponent(apiKey);
-
-        // Call the API using the fetch function
-        fetch(apiUrl)
-          .then(function(response) {
-            return response.json();
-          })
-          .then(function(json) {
-            // Iterate through the list of videos
-            for (var i = 0; i < json.items.length; i++) {
-              var video = json.items[i];
-
-              // Check if the video is embeddable
-              if (video.hasOwnProperty('status') && video.status.hasOwnProperty('embeddable') && video.status.embeddable) {
-                // Add the video to the array of embeddable videos
-                videos.push(video);
-              }
-            }
-
-            // Embed the initial set of videos
-            changeVideos();
-          })
-          .catch(function(error) {
-            console.error('Error fetching videos:', error);
-          });
+      const sermonVideoIds = ["XaxsF4b4D5Q", "4I7yKVtGdmg", "D0RNXNX12sg", "X2q3cpG0g3w", "0_qyFgKX1sE"];
+      const musicVideoIds = ["5qap5aO4i9A", "4NhD4s1x4LE", "5yx6BWlEVcY", "PZvqPzBrjzM", "GxUTAqJjF3E"];
+      
+      function playVideos() {
+        const sermonVideoId = sermonVideoIds[Math.floor(Math.random() * sermonVideoIds.length)];
+        const musicVideoId = musicVideoIds[Math.floor(Math.random() * musicVideoIds.length)];
+        const sermonVideoUrl = "https://www.youtube.com/embed/" + sermonVideoId + "?autoplay=1&controls=0&start=0&fs=0&rel=0&modestbranding=1&showinfo=0&mute=0&iv_load_policy=3&loop=0";
+        const musicVideoUrl = "https://www.youtube.com/embed/" + musicVideoId + "?autoplay=1&controls=0&start=0&fs=0&rel=0&modestbranding=1&showinfo=0&mute=1&iv_load_policy=3&loop=1&playlist=" + musicVideoId;
+        document.getElementById("sermonVideo").src = sermonVideoUrl;
+        document.getElementById("musicVideo").src = musicVideoUrl;
       }
-
-      // Embed two random videos on the page
+      
       function changeVideos() {
-        // Select two random videos from the array of embeddable videos
-        var video1 = videos[Math.floor(Math.random() * videos.length)];
-        var video2 = videos[Math.floor(Math.random() * videos.length)];
-
-        // Create the player objects for the two videos
-        var player1 = new YT.Player('player1', {
-          height: '360',
-          width: '640',
-          videoId: video1.id.videoId,
-          playerVars: {
-            autoplay: 1,
-            controls: 0,
-            disablekb: 1,
-            iv_load_policy: 3,
-            modestbranding: 1,
-            showinfo:
+        playVideos();
+      }
+      
+      window.onload = function() {
+        playVideos();
+      }
+    </script>
+  </body>
+</html>
